@@ -1,0 +1,18 @@
+📦 php-app
+├── 📂 infra
+│   ├── 📂 terraform
+│   │   ├── main.tf            # Terraform configuration for AWS infrastructure
+│   │   ├── variables.tf       # Terraform variables
+│   │   ├── outputs.tf         # Terraform output (EC2 IP, etc.)
+│   │   ├── provider.tf        # AWS provider configuration
+│   │   ├── terraform.tfvars   # Terraform variable values (DO NOT commit)
+│   │   ├── .gitignore         # Ignore sensitive Terraform files
+├── 📂 src                     # PHP Application
+│   ├── index.php              # Sample PHP file
+│   ├── config.php             # Configuration file
+│   ├── .htaccess              # Apache configuration (optional)
+│   ├── .gitignore             # Ignore unnecessary files
+├── 📂 .github
+│   ├── 📂 workflows
+│   │   ├── deploy.yml         # GitHub Actions CI/CD pipeline
+├── README.md                   # Project documentation
