@@ -21,26 +21,25 @@ jobs:
       - name: Deploy PHP App to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          # Update and install required packages
           sudo yum update -y
-          sudo yum install -y httpd php php-mysqli git mysql57
+          sudo yum install -y httpd php php-mysqli git mariadb105  # ✅ Correct MySQL client for Amazon Linux 2023
 
           # Start and enable Apache
           sudo systemctl start httpd
           sudo systemctl enable httpd
 
-          # Move to web directory
+          # Navigate to Apache directory and clean up old files
           cd /var/www/html
-
-          # Clean up old files
           sudo rm -rf *
 
           # Clone latest code from GitHub
-          sudo git clone https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY.git app
+          sudo git clone https://github.com/dionchamika/sample-php.git app
 
-          # Move files to the correct location
+          # Move application files to the correct location
           sudo mv app/src/* .
-          sudo mv app/slt_clothing_db.sql .
+
+          # Move the correct database file (`slt_clothing.sql`)
+          sudo mv app/slt_clothing.sql .  # ✅ Ensures database file is copied correctly
 
           # Remove temporary folder
           sudo rm -rf app
@@ -52,10 +51,11 @@ jobs:
       - name: Import Database
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          # Ensure MySQL Client is installed
-          sudo yum install -y mysql57
+          sudo yum install -y mariadb105  # ✅ Install MySQL client before running import
 
-          # Import the database schema
-          mysql -h slt-clothing-db.c18qswy2ixqk.us-east-1.rds.amazonaws.com -u admin -psltclothing12345 -e "CREATE DATABASE IF NOT EXISTS slt_clothing_db;"
-          mysql -h slt-clothing-db.c18qswy2ixqk.us-east-1.rds.amazonaws.com -u admin -psltclothing12345 slt_clothing_db < /var/www/html/slt_clothing_db.sql
+          # Ensure Database Exists
+          mysql -h slt-clothing-db.c18qswy2ixqk.us-east-1.rds.amazonaws.com -u admin -psltclothing12345 -e "CREATE DATABASE IF NOT EXISTS slt_clothing;"
+
+          # Import Database Schema
+          mysql -h slt-clothing-db.c18qswy2ixqk.us-east-1.rds.amazonaws.com -u admin -psltclothing12345 slt_clothing < /var/www/html/slt_clothing.sql
           EOF
